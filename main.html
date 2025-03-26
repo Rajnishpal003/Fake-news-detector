@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            margin: 50px auto;
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+        button {
+            margin-top: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 20px;
+            display: none;
+            padding: 15px;
+            border-radius: 5px;
+            transition: 0.3s ease-in-out;
+        }
+        .real {
+            color: green;
+            background-color: #d4edda;
+            border-left: 5px solid green;
+        }
+        .fake {
+            color: red;
+            background-color: #f8d7da;
+            border-left: 5px solid red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fake News Detector</h1>
+        <textarea id="newsInput" rows="5" placeholder="Enter news text here..."></textarea><br>
+        <button onclick="checkNews()">Check News</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+       function checkNews() {
+    const newsText = document.getElementById("newsInput").value.trim();
+    const resultElement = document.getElementById("result");
+
+    if (!newsText) {
+        resultElement.innerText = "Please enter some news text.";
+        resultElement.style.display = "block";
+        resultElement.className = "";
+        return;
+    }
+
+    // Split by new lines (assuming each line is a separate news entry)
+    const newsArray = newsText.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+
+    fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ texts: newsArray })  // Send as an array
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {  // Detect if Flask sends an error
+            resultElement.innerText = data.error;
+            resultElement.style.display = "block";
+            resultElement.className = "";
+        } else {
+            let output = "<strong>Predictions:</strong><br>";
+            data.results.forEach(item => {
+                let colorClass = item.prediction === "Fake" ? "fake" : "real";
+                output += `<span class="${colorClass}">${item.text}: ${item.prediction}</span><br>`;
+            });
+            resultElement.innerHTML = output;
+            resultElement.style.display = "block";
+        }
+    })
+    .catch(error => {
+        resultElement.innerText = "Error: Could not connect to server.";
+        resultElement.style.display = "block";
+        resultElement.className = "";
+        console.error("Error:", error);
+    });
+}
+
+
+
+    </script>
+</body>
+</html>
