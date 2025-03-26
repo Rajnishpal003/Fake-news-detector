@@ -86,7 +86,6 @@
         return;
     }
 
-    // Split by new lines (assuming each line is a separate news entry)
     const newsArray = newsText.split("\n").map(line => line.trim()).filter(line => line.length > 0);
 
     fetch("http://127.0.0.1:5000/predict", {
@@ -94,18 +93,18 @@
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ texts: newsArray })  // Send as an array
+        body: JSON.stringify({ texts: newsArray })
     })
     .then(response => response.json())
     .then(data => {
-        if (data.error) {  // Detect if Flask sends an error
+        if (data.error) {
             resultElement.innerText = data.error;
             resultElement.style.display = "block";
             resultElement.className = "";
         } else {
             let output = "<strong>Predictions:</strong><br>";
             data.results.forEach(item => {
-                let colorClass = item.prediction === "Fake" ? "fake" : "real";
+                let colorClass = item.prediction.includes("Fake") ? "fake" : "real";
                 output += `<span class="${colorClass}">${item.text}: ${item.prediction}</span><br>`;
             });
             resultElement.innerHTML = output;
@@ -119,6 +118,7 @@
         console.error("Error:", error);
     });
 }
+
 
 
 
