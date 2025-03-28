@@ -5,7 +5,12 @@ import pickle
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.linear_model import LogisticRegression
+
+# Replace PassiveAggressiveClassifier with Logistic Regression
+classifier = LogisticRegression(max_iter=1000)  # Increased iterations for accuracy
+classifier.fit(X_train, y_train)
+
 
 
 # Download stopwords if not downloaded

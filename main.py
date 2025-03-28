@@ -48,8 +48,9 @@ def get_real_news_headlines():
     
     return headlines
 
-def is_similar(text1, text2, threshold=0.8):  # Increased threshold for better accuracy
+def is_similar(text1, text2, threshold=0.75):  # Lowered threshold from 0.8 to 0.75
     return SequenceMatcher(None, text1.lower(), text2.lower()).ratio() > threshold
+
 
 def has_significant_overlap(text1, text2, min_common_words=5):
     words1 = set(text1.lower().split())
